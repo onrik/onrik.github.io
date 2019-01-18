@@ -1,4 +1,4 @@
-var cacheName = 'points-v6';
+var cacheName = 'points-v1';
 var filesToCache = [
   '/points/',
   '/points/static/css/bootstrap-4.1.3.min.css',
