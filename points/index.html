@@ -1,0 +1,181 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Points</title>
+
+    <link rel="manifest" href="manifest.json">
+    <!-- Add to home screen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Points">
+    <link rel="apple-touch-icon" href="static/images/icon.png">
+    <meta name="msapplication-TileImage" content="static/images/icon.png">
+    <meta name="msapplication-TileColor" content="#4285f4">
+
+    <link rel="stylesheet" href="static/css/font-awesome-4.7.0.min.css">
+    <link rel="stylesheet" href="static/css/bootstrap-4.1.3.min.css" >
+    <link rel="stylesheet" href="static/css/mdb-4.5.15.min.css">
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+        .point .btn.btn-sm {
+            padding: .5rem 1.0rem;
+        }
+        .point-title {
+            font-weight: 400;
+            padding: 5px 0;
+        }
+        .point-title a {
+            text-decoration: underline;
+            color: #007bff !important;
+        }
+        .point-coordinates {
+            font-size: 12px;
+            color: darkgray;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark primary-color">
+            <a class="navbar-brand" href="#">Points</a>
+        </nav>
+    </header>
+    
+    <main>
+        <div id="id_points" class="main w-responsive text-center mx-auto p-3 mt-2">
+            <div>
+                <table id="id_points_table" class="table table-striped">
+                    <!-- <thead class="primary-color white-text">
+                        <tr>
+                            <th scope="col"></th>
+                            <th scope="col" class="text-right">
+                                <button type="button" @click="clean" class="btn btn-sm btn-danger">Очистить</button>
+                            </th>
+                        </tr>
+                    </thead> -->
+                    <tbody>
+                        <tr v-cloak v-for="point in points" class="point">
+                            <td>
+                                <div class="point-title">
+                                    <a href="#" @click="openPoint(point);">{{ point.title }}</a>
+                                </div>
+                                <div class="point-coordinates">{{ point.coordinates }}</div>
+                            </td>
+                            <td class="text-right">
+                                <!-- <a v-bind:href="https://yandex.ru/maps?mode=search&text={{ point.coordinates }}" class="btn btn-sm btn-primary">Открыть</a> -->
+                                <!-- <button type="button" class="btn btn-sm btn-primary" @click="openPoint(point);">Открыть</button> -->
+                                <button type="button" @click="removePoint(point);" class="btn btn-sm btn-danger">X</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <br>
+            <form v-on:submit.prevent="addPoint" method="post">
+                <div class="md-form">
+                    <input type="text" v-model="title" id="id_title" class="form-control" placeholder="Например: КВ-2" required>
+                    <label for="id_title">Название</label>
+                </div>
+
+                <div class="md-form">
+                    <input type="text" v-model.number="lon1" id="id_lon1" class="form-control" required>
+                    <input type="text" v-model.number="lon2" id="id_lon2" class="form-control" required>
+                    <label for="id_lon1">Долгота</label>
+                </div>
+
+                <div class="md-form">
+                    <input type="text" v-model.number="lat1" id="id_lat1" class="form-control" required>
+                    <input type="text" v-model.number="lat2" id="id_lat2" class="form-control" required>
+                    <label for="id_lat1">Широта</label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Добавить</button>
+            </form>
+        </div>
+    </main>
+    
+    <!-- <footer>
+        <hr>
+        <div class="text-center">
+            2018
+        </div>
+    </footer> -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker
+            .register('/points/service-worker.js', { scope: '/points/' })
+            .then(function() { console.log('Service Worker Registered'); });
+          }
+    </script>
+    <script src="static/js/app.js"></script> -->
+    <script src="static/js/jquery-3.3.1.min.js"></script>
+    <script src="static/js/bootstrap-4.1.3.min.js"></script>
+    <script src="static/js/mdb-4.5.14.min.js"></script>
+    <script src="static/js/vue-2.5.17.min.js"></script>
+    <script>
+        var pointsTableWidget = new Vue({
+            el: '#id_points',
+            data: {
+                title: 'Test',
+                lon1: 55,
+                lon2: 47.903,
+                lat1: 37,
+                lat2: 34.835,
+                points: [],
+            },
+            methods: {
+                addPoint: function() {
+                    var lon = (this.lon1 + this.lon2 / 60.0).toFixed(6);
+                    var lat = (this.lat1 + this.lat2 / 60.0).toFixed(6);
+        
+                    var point = {
+                        title: this.title,
+                        coordinates: lon+', '+lat,
+                    }
+                    this.points.push(point);
+                    this.reset();
+                    console.log(this.points);
+                    this.save();
+                },
+                removePoint: function(point) {
+                    console.log('Delete', point);
+                    this.points.splice(this.points.indexOf(point), 1);
+                    this.save();
+                },
+                openPoint: function(point) {
+                    // var url = "http://maps.apple.com/?t=s&sll="+point.coordinates;
+                    var url = "https://yandex.ru/maps?mode=search&text="+point.coordinates;
+                    window.location.assign(url);
+                },
+                reset: function() {
+                    this.title = '';
+                    this.lon1 = '';
+                    this.lon2 = '';
+                    this.lat1 = '';
+                    this.lat2 = '';
+                },
+                clean: function() {
+                    this.points = [];
+                    this.save();
+                },
+                save: function() {
+                    localStorage.setItem('points', JSON.stringify(this.points));
+                },
+                load: function() {
+                    console.log('Load', localStorage.getItem('points'));
+                    this.points = JSON.parse(localStorage.getItem('points') || '[]')
+                }
+            },
+            created: function(){
+                this.load();
+            },
+          });
+    </script>
+</body>
+</html>

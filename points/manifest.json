@@ -1,0 +1,16 @@
+{
+    "name": "Points",
+    "short_name": "Points",
+    "icons": [
+        {
+            "src": "static/images/icon.png",
+            "sizes": "256x256",
+            "type": "image/png"
+        }
+    ],
+    "start_url": "/points/",
+    "scope": "/points/",
+    "display": "standalone",
+    "background_color": "#4285f4",
+    "theme_color": "#4285f4"
+  }
